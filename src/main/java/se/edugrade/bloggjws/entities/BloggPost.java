@@ -14,7 +14,7 @@ public class BloggPost {
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
-    @Column(name = "content", nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 1000)
     private String content;
 
     @Column(name = "author_sub", nullable = false, length = 100)
