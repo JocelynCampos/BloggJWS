@@ -1,5 +1,5 @@
 package se.edugrade.bloggjws.repositories;
-
+/*
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import se.edugrade.bloggjws.entities.AppUser;
@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<AppUser, Long> {
     Optional<AppUser> findByEmail(String email);
     List<AppUser> findByRole(Role role);
+
+
 }
+*/
