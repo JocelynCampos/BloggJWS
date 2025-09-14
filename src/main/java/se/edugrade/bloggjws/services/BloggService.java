@@ -1,6 +1,8 @@
 package se.edugrade.bloggjws.services;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.edugrade.bloggjws.entities.BloggPost;
@@ -31,26 +33,41 @@ public class BloggService {
     }
 
     @Transactional
-    public BloggPost createNewPost(BloggPost post) {
+    public BloggPost createNewPost(BloggPost post, Authentication auth) {
         post.setId(null);
+        post.setAuthorSub(auth.getName());
         return bloggPostRepository.save(post);
     }
 
     @Transactional
-    public BloggPost updateExistingPost(BloggPost post) {
-        if(post.getId() == null || !bloggPostRepository.existsById(post.getId())) {
-            throw new EntityNotFoundException("Could not find post with id: " + post.getId());
+    public BloggPost updateExistingPost(Long id, BloggPost incoming, Authentication auth) {
+        BloggPost existingPost = bloggPostRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Could not find post with id: " + id));
 
+        boolean isOwner = existingPost.getAuthorSub().equals(auth.getName());
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_myClient_ADMIN"));
+        if (!isOwner && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to update this post");
         }
-        return bloggPostRepository.save(post);
+
+        existingPost.setTitle(incoming.getTitle());
+        existingPost.setContent(incoming.getContent());
+        return bloggPostRepository.save(existingPost);
     }
 
     @Transactional
-    public void deletePost(Long id) {
-        if(!bloggPostRepository.existsById(id)) {
-            throw new EntityNotFoundException("Could not remove post with id: " + id);
+    public void deletePost(Long id, Authentication auth) {
+        BloggPost existingPostToDelete = bloggPostRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Could not remove post with id: " + id));
+        boolean isOwner = existingPostToDelete.getAuthorSub().equals(auth.getName());
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_myClient_ADMIN"));
+        if(!isOwner && !isAdmin) {
+            throw new AccessDeniedException("Could not remove post with id: " + id);
         }
-        bloggPostRepository.deleteById(id);
+        bloggPostRepository.delete(existingPostToDelete);
+        System.out.println("Deleted post: " + existingPostToDelete + " by:" + auth.getName() + ". With role: " + auth.getAuthorities());
     }
 
     @Transactional(readOnly = true)
