@@ -1,4 +1,5 @@
 package se.edugrade.bloggjws.entities;
+/*
 
 import jakarta.persistence.*;
 import se.edugrade.bloggjws.enums.Role;
@@ -74,3 +75,5 @@ public class AppUser {
         this.role = role;
     }
 }
+
+*/
