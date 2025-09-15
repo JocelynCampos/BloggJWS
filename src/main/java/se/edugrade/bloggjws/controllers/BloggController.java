@@ -1,5 +1,6 @@
 package se.edugrade.bloggjws.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import se.edugrade.bloggjws.entities.BloggPost;
@@ -38,7 +39,6 @@ public class BloggController {
     @PostMapping("/newpost")
     public BloggPost createNewPost(@RequestBody BloggPost dto, Authentication auth) {
         String sub = auth.getName();
-        System.out.println("Post post by sub: " + sub);
         return bloggService.createNewPost(dto, auth);
     }
 
@@ -52,12 +52,22 @@ public class BloggController {
         return bloggService.updateExistingPost(id, dto, auth);
     }
 
-    /*********** Kräver user, rätt ägare av blogginlägget eller rollen admin ********************/
+    /*********** Kräver user, rätt ägare av blogginlägget eller rollen admin********************/
 
-    //Raderar ett blogginlägg
+    /********Extra endpoint********/
+    //Raderar ett specifikt inlägg
     @DeleteMapping("/deletepost/{id}")
-    public void deletePost(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<Void> deletePostByPath(@PathVariable Long id, Authentication auth) {
         bloggService.deletePost(id, auth);
+        return ResponseEntity.noContent().build();
+    }
+    /****************/
+
+    //Raderat ett blogginlägg
+    @DeleteMapping("/deletepost")
+    public ResponseEntity deletePost(@RequestParam Long id, Authentication auth) {
+         bloggService.deletePost(id, auth);
+         return ResponseEntity.noContent().build();
     }
 
     /************ Kräver rollen admin **************/

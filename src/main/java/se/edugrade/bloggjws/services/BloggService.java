@@ -1,8 +1,6 @@
 package se.edugrade.bloggjws.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,20 +29,21 @@ public class BloggService {
     @Transactional(readOnly = true)
     public BloggPost getSpecificPost(Long id) {
         return bloggPostRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not find post with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find post with id: " + id));
     }
 
     @Transactional
     public BloggPost createNewPost(BloggPost post, Authentication auth) {
         post.setId(null);
         post.setAuthorSub(auth.getName());
+        System.out.println("New post made by " + auth.getName());
         return bloggPostRepository.save(post);
     }
 
     @Transactional
     public BloggPost updateExistingPost(Long id, BloggPost incoming, Authentication auth) {
         BloggPost existingPost = bloggPostRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not find post with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find post with id: " + id));
 
         boolean isOwner = existingPost.getAuthorSub().equals(auth.getName());
         boolean isAdmin = auth.getAuthorities().stream()
@@ -68,8 +67,8 @@ public class BloggService {
         if(!isOwner && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have authority to delete this post. Therefore post with id: " + id + " could not be deleted.");
         }
+        System.out.println("Post deleted by " + auth.getName());
         bloggPostRepository.delete(existingPostToDelete);
-        System.out.println("Deleted post: " + existingPostToDelete + " by:" + auth.getName() + ". With role: " + auth.getAuthorities());
     }
 
     @Transactional(readOnly = true)
