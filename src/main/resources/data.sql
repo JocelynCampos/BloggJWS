@@ -9,4 +9,4 @@ INSERT INTO blogg_posts (title, content, author_sub) VAlUES
 ('Lets learn programming!','How do I learn Keycloak?','512320ce-2ff8-40b7-b04a-bfa7ced27f15'),
 ('Life is a struggle.', 'Programming is fun most times.', '512320ce-2ff8-40b7-b04a-bfa7ced27f15'),
 ('Samoyeds are cloud dogs.', 'Masha thinks she is a waterdog!','89c43d28-c8e6-49c4-8870-1d390927b9ad'),
-('Plitvice Jezera', 'Those lakes are unbelievable!', '89c43d28-c8e6-49c4-8870-1d390927b9ad');
+('Plitvice Jezera', 'Masha wants to swim there!', '89c43d28-c8e6-49c4-8870-1d390927b9ad');

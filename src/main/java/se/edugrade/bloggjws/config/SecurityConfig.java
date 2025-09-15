@@ -3,6 +3,7 @@ package se.edugrade.bloggjws.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import se.edugrade.bloggjws.converters.JwtAuthConverter;
@@ -33,11 +34,12 @@ public class SecurityConfig {
                                 .hasRole("myClient_USER")
 
                                 //Endpoints som kräver user OCH rätt roll
-                                .requestMatchers("/api/v2/updatepost/**", "/api/v2/deletepost/**")
+                                .requestMatchers(HttpMethod.PUT, "/api/v2/updatepost/**").hasAnyRole("myClient_USER", "myClient_ADMIN")
+                                .requestMatchers(HttpMethod.DELETE,"/api/v2/deletepost", "/api/v2/deletepost/**")
                                 .hasAnyRole("myClient_USER", "myClient_ADMIN")
 
                                 //Admin endpoint
-                                .requestMatchers("/api/v2/count")
+                                .requestMatchers(HttpMethod.GET,"/api/v2/count")
                                 .hasRole("myClient_ADMIN")
 
                                 .anyRequest().authenticated()
