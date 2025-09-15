@@ -1,10 +1,12 @@
 package se.edugrade.bloggjws.services;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import se.edugrade.bloggjws.entities.BloggPost;
 import se.edugrade.bloggjws.repositories.BloggPostRepository;
 
@@ -48,7 +50,7 @@ public class BloggService {
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_myClient_ADMIN"));
         if (!isOwner && !isAdmin) {
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to update this post");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to update this post");
         }
 
         existingPost.setTitle(incoming.getTitle());
@@ -59,12 +61,12 @@ public class BloggService {
     @Transactional
     public void deletePost(Long id, Authentication auth) {
         BloggPost existingPostToDelete = bloggPostRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not remove post with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find post: " + id));
         boolean isOwner = existingPostToDelete.getAuthorSub().equals(auth.getName());
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_myClient_ADMIN"));
         if(!isOwner && !isAdmin) {
-            throw new AccessDeniedException("Could not remove post with id: " + id);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have authority to delete this post. Therefore post with id: " + id + " could not be deleted.");
         }
         bloggPostRepository.delete(existingPostToDelete);
         System.out.println("Deleted post: " + existingPostToDelete + " by:" + auth.getName() + ". With role: " + auth.getAuthorities());

@@ -25,8 +25,8 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     @Value("${jwt.auth.converter.resource-id.name}")
     private String resourceIdName;
 
-    @Value("${jwt.auth.converter.principle-attribute}")
-    private String principleAttribute;
+    @Value("${jwt.auth.converter.principal-attribute}")
+    private String principalAttribute;
 
 
     @Override
@@ -35,7 +35,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
                 jwtGrantedAuthoritiesConverter.convert(jwt).stream(),
                 extractResourceRoles(jwt).stream())
                 .collect(Collectors.toSet());
-        return new JwtAuthenticationToken(jwt, authorities, getPrincipleClaimName(jwt));
+        return new JwtAuthenticationToken(jwt, authorities, getPrincipalClaimName(jwt));
     }
 
 
@@ -58,10 +58,10 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         return resourceRoles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toSet());
     }
 
-    private String getPrincipleClaimName(Jwt jwt) {
+    private String getPrincipalClaimName(Jwt jwt) {
         String claimName = JwtClaimNames.SUB;
-        if (principleAttribute != null && !principleAttribute.isEmpty()) {
-            claimName = principleAttribute;
+        if (principalAttribute != null && !principalAttribute.isEmpty()) {
+            claimName = principalAttribute;
         }
         return jwt.getClaim(claimName);
     }
